@@ -1,36 +1,54 @@
-# @pipeworx/mcp-translate
+# mcp-translate
 
-MCP server for language translation via [LibreTranslate](https://libretranslate.com/). Free, no auth required.
+Translate MCP — wraps LibreTranslate API (https://libretranslate.com/)
+
+Part of [Pipeworx](https://pipeworx.io) — an MCP gateway connecting AI agents to 250+ live data sources.
 
 ## Tools
 
 | Tool | Description |
 |------|-------------|
-| `translate` | Translate text from a source language to a target language |
-| `detect_language` | Detect the language of a text string |
-| `list_languages` | List all supported language codes and names |
 
-## Quickstart (Pipeworx Gateway)
+## Quick Start
 
-Send a JSON-RPC request to the Pipeworx gateway:
+Add to your MCP client (Claude Desktop, Cursor, Windsurf, etc.):
 
-```bash
-curl -X POST https://gateway.pipeworx.io/mcp \
-  -H "Content-Type: application/json" \
-  -d '{
-    "jsonrpc": "2.0",
-    "id": 1,
-    "method": "tools/call",
-    "params": {
-      "name": "translate",
-      "arguments": {
-        "text": "Hello, world!",
-        "source": "en",
-        "target": "es"
-      }
+```json
+{
+  "mcpServers": {
+    "translate": {
+      "url": "https://gateway.pipeworx.io/translate/mcp"
     }
-  }'
+  }
+}
 ```
+
+Or connect to the full Pipeworx gateway for access to all 250+ data sources:
+
+```json
+{
+  "mcpServers": {
+    "pipeworx": {
+      "url": "https://gateway.pipeworx.io/mcp"
+    }
+  }
+}
+```
+
+## Using with ask_pipeworx
+
+Instead of calling tools directly, you can ask questions in plain English:
+
+```
+ask_pipeworx({ question: "your question about Translate data" })
+```
+
+The gateway picks the right tool and fills the arguments automatically.
+
+## More
+
+- [All tools and guides](https://github.com/pipeworx-io/examples)
+- [pipeworx.io](https://pipeworx.io)
 
 ## License
 
