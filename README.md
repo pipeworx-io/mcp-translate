@@ -1,16 +1,49 @@
-# mcp-translate
+# Translate — LibreTranslate-compatible machine translation
 
-Translate MCP — wraps LibreTranslate API (https://libretranslate.com/)
+Translate text, detect a language, or list supported languages against any LibreTranslate-compatible instance.
 
-Part of [Pipeworx](https://pipeworx.io) — an MCP gateway connecting AI agents to 1394+ live data sources.
+Part of [Pipeworx](https://pipeworx.io) — an MCP gateway connecting AI agents to 1476+ live data sources.
+
+**You need to bring an instance or a key.** For translation that works with no key of your own, use [`deepl`](../deepl) — `deepl_translate` covers the same languages and Pipeworx fronts the key.
 
 ## Tools
 
-| Tool | Description |
-|------|-------------|
-| `translate` | Translate text from a source language to a target language. Returns the translated text. |
-| `detect_language` | Detect the language of a text string. Returns an array of detected languages with confidence scores. |
-| `list_languages` | List all languages supported by the translation API. Returns language codes and names. |
+| Tool | What it does |
+|---|---|
+| `translate` | Translate text between two languages |
+| `detect_language` | Detect the language of a string, with confidence |
+| `list_languages` | Language codes the configured instance supports |
+
+## Auth
+
+Bring your own, one of:
+
+- `_apiKey` — an API key from <https://portal.libretranslate.com> (libretranslate.com is now key-only)
+- `_endpoint` — the base URL of a self-hosted instance (<https://github.com/LibreTranslate/LibreTranslate>)
+
+Given neither, every tool returns `{found: false, reason: "requires_key_or_endpoint"}` with a pointer to `deepl_translate`. It does not attempt the call.
+
+## Why it is gated
+
+This pack used to hardcode `libretranslate.com` and call it with no key. That endpoint moved behind an API key, so every call returned the upstream's raw 400 — *"Visit portal.libretranslate.com to get an API key"* — which reads to a caller as Pipeworx being broken rather than as a source needing a key.
+
+The obvious fallback was a free public mirror. There aren't any left. Checked 2026-08-06:
+
+| Instance | Result |
+|---|---|
+| `translate.argosopentech.com` | does not resolve |
+| `libretranslate.com` | 400, key required |
+| `translate.terraprint.co` | 502 |
+| `lt.vern.cc` | 502 |
+| `translate.fedilab.app` | 403 |
+| `libretranslate.eownerdead.dedyn.io` | 403 |
+| `trans.zillyhuhn.com` | 403 |
+
+So the pack is honestly BYO rather than quietly broken. It is registered in the gateway's `BYO_ONLY_KEY_PACKS`, which sinks it below `deepl_translate` in routing and labels it, so an agent asking to translate something reaches the tool that can answer.
+
+## Data source
+
+LibreTranslate API v1 — <https://github.com/LibreTranslate/LibreTranslate#api>
 
 ## Quick Start
 
@@ -26,7 +59,25 @@ Add to your MCP client (Claude Desktop, Cursor, Windsurf, etc.):
 }
 ```
 
-Or connect to the full Pipeworx gateway for access to all 1394+ data sources:
+### What this endpoint actually serves
+
+`tools/list` at `https://gateway.pipeworx.io/translate/mcp` returns the tools in the table
+above **plus the shared Pipeworx meta-tools** — `ask_pipeworx`,
+`discover_tools`, `search_within`, `remember`/`recall` and the rest of the
+gateway-wide set. So the tool count you see is larger than this table: a
+single-pack endpoint currently lists roughly 30 shared tools alongside the
+pack's own. The connection's `initialize` response states its exact scope, and
+is the authoritative answer for a given day.
+
+This is deliberate, not multiplexing by accident. The meta-tools are what let a
+scoped connection answer a question this pack does not cover — via
+`ask_pipeworx`, which routes across the whole catalog — without you adding a
+second MCP server. There is currently no way to mount a pack endpoint without
+them; if the extra schemas cost you more context than the routing is worth,
+connect to the full gateway once rather than to several pack endpoints.
+
+Or connect to the full Pipeworx gateway to get every pack's tools listed
+directly, instead of just this one's:
 
 ```json
 {
@@ -38,9 +89,14 @@ Or connect to the full Pipeworx gateway for access to all 1394+ data sources:
 }
 ```
 
+Both URLs reach the same gateway and the same 1476+ data sources. The
+only difference is which pack's tools are listed **directly**; `ask_pipeworx`
+reaches all of them from either one.
+
 ## Using with ask_pipeworx
 
-Instead of calling tools directly, you can ask questions in plain English:
+Instead of calling tools directly, you can ask questions in plain English —
+this works on the pack endpoint above as well as on the full gateway:
 
 ```
 ask_pipeworx({ question: "your question about Translate data" })
