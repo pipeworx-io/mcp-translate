@@ -1,6 +1,6 @@
 {
   "name": "@pipeworx/mcp-translate",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Translate MCP — LibreTranslate-compatible machine translation.",
   "type": "module",
   "main": "src/index.ts",
@@ -26,7 +26,7 @@
     "@cloudflare/workers-types": "^4.20260405.1"
   },
   "pipeworx": {
-    "sourceHash": "v1-c93140fc9b049298b1c48546d1a0b510cd8327c0d32d903caf6c6d3279686452",
-    "sourceCommit": "b0fb3c31386cf0256dcf1e2f1b3440435a87ec35"
+    "sourceHash": "v1-286ea288e3019bcc1da8b0fd3d1e03accc1ddb2fb26383fec0c220be15248638",
+    "sourceCommit": "66a0692f029179984440cef6938cba7fdd41d66d"
   }
 }
