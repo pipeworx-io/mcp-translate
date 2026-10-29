@@ -1,12 +1,20 @@
 {
   "name": "@pipeworx/mcp-translate",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Translate MCP — LibreTranslate-compatible machine translation.",
   "type": "module",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./tools.json": "./tools.json",
+    "./package.json": "./package.json"
+  },
   "bin": {
     "mcp-translate": "bin/cli.js"
+  },
+  "files": ["bin/", "lib/", "tools.json", "server.json"],
+  "engines": {
+    "node": ">=18"
   },
   "keywords": ["mcp", "mcp-server", "model-context-protocol", "pipeworx", "translate"],
   "license": "MIT",
@@ -14,19 +22,12 @@
     "type": "git",
     "url": "git+https://github.com/pipeworx-io/mcp-translate.git"
   },
-  "scripts": {
-    "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.30.0",
-    "tsx": "^4.19.0"
-  },
-  "devDependencies": {
-    "typescript": "^5.9.3",
-    "@cloudflare/workers-types": "^4.20260405.1"
-  },
+  "mcpName": "io.github.pipeworx-io/translate",
   "pipeworx": {
-    "sourceHash": "v1-286ea288e3019bcc1da8b0fd3d1e03accc1ddb2fb26383fec0c220be15248638",
-    "sourceCommit": "66a0692f029179984440cef6938cba7fdd41d66d"
+    "mode": "gateway",
+    "slug": "translate",
+    "gatewaySlug": "translate",
+    "sourceHash": "v1-88f8d80812cfeececb54c8b6a426f48cc8899d1f38479ca8e7958775a76cb721",
+    "sourceCommit": "f47d581679e1e887373df51ba623f891fbe4c464"
   }
 }

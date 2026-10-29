@@ -2,9 +2,9 @@
 
 Translate text, detect a language, or list supported languages against any LibreTranslate-compatible instance.
 
-Part of [Pipeworx](https://pipeworx.io) — an MCP gateway connecting AI agents to 1684+ live data sources.
+Part of [Pipeworx](https://pipeworx.io) — an MCP gateway connecting AI agents to 1857+ live data sources. This is an independent, unofficial integration — not affiliated with, endorsed by, or published by the upstream provider.
 
-**You need to bring an instance or a key.** For translation that works with no key of your own, use [`deepl`](../deepl) — `deepl_translate` covers the same languages and Pipeworx fronts the key.
+**You need to bring an instance or a key.** For translation that works with no key of your own, use [`mymemory`](../mymemory) — `mymemory_translate` is keyless. `deepl_translate` also covers this when its shared platform key has monthly budget left.
 
 ## Tools
 
@@ -39,7 +39,7 @@ The obvious fallback was a free public mirror. There aren't any left. Checked 20
 | `libretranslate.eownerdead.dedyn.io` | 403 |
 | `trans.zillyhuhn.com` | 403 |
 
-So the pack is honestly BYO rather than quietly broken. It is registered in the gateway's `BYO_ONLY_KEY_PACKS`, which sinks it below `deepl_translate` in routing and labels it, so an agent asking to translate something reaches the tool that can answer.
+So the pack is honestly BYO rather than quietly broken. It is registered in the gateway's `BYO_ONLY_KEY_PACKS`, which sinks it below the keyless `mymemory_translate` in routing and labels it, so an agent asking to translate something reaches the tool that can answer.
 
 ## Data source
 
@@ -89,7 +89,7 @@ directly, instead of just this one's:
 }
 ```
 
-Both URLs reach the same gateway and the same 1684+ data sources. The
+Both URLs reach the same gateway and the same 1857+ data sources. The
 only difference is which pack's tools are listed **directly**; `ask_pipeworx`
 reaches all of them from either one.
 
@@ -97,10 +97,12 @@ reaches all of them from either one.
 
 This pack takes your own API key (`_apiKey`) — we don't front one for it, so there's no curl here that would run without it. Inspect any tool: `GET https://gateway.pipeworx.io/v1/tools/translate_translate`. Find one: `POST https://gateway.pipeworx.io/v1/tools/search_packs` with `{"query":"..."}`.
 
-## Standalone (no gateway account)
+## Run it from npm
 
-This package also runs as a local stdio MCP server — no Pipeworx account, no
-gateway round-trip:
+`@pipeworx/mcp-translate` is a local stdio bridge to the Pipeworx gateway: your MCP client
+starts it with `npx`, and it forwards every call to the same
+`https://gateway.pipeworx.io/translate/mcp` endpoint shown above. It needs network access;
+there is no offline mode.
 
 ```json
 {
@@ -113,15 +115,18 @@ gateway round-trip:
 }
 ```
 
-Or run it directly to confirm it starts:
+Without a key it calls anonymously, capped at 50 calls a day. A free account
+raises that to 200 a day: get a key at https://pipeworx.io/signup and add
+`"env": { "PIPEWORX_API_KEY": "<your key>" }` to the server entry.
+The key is sent as a Bearer token, the same way a hosted connection sends it,
+so calls are metered and billed exactly as they are there.
 
-```bash
-npx -y @pipeworx/mcp-translate
-```
+It lists **only** this pack's tools by default. Set `PIPEWORX_META_TOOLS=1` to
+also list `ask_pipeworx` and the other gateway-wide tools.
 
-It speaks MCP over stdin/stdout and answers `initialize`/`tools/list`/`tools/call`
-for **only** this pack's tools — none of the shared meta-tools the gateway
-connection above adds. Same source, same tools, no ask_pipeworx routing.
+Behind an HTTPS proxy: Node's built-in `fetch` does not read `HTTPS_PROXY` by
+default. Newer Node releases honour it when `NODE_USE_ENV_PROXY=1` is set; check
+your Node version's documentation.
 
 ## Using with ask_pipeworx
 
